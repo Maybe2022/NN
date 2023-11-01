@@ -14,16 +14,19 @@ from torch.cuda.amp import GradScaler, autocast
 from torch.utils.data import DataLoader
 from dataset import *
 import time
-from model import *
+# from model import *
+from models import SEW
+
 
 # Initialize Weights & Biases
 # wandb.init(project="audio_classification")
 
 # Argument parsing
 parser = argparse.ArgumentParser(description='Speech Command Classification')
-parser.add_argument('--data', type=str, default='./dataset', help='learning rate')
-parser.add_argument('--lr', type=float, default=0.001, help='learning rate')
-parser.add_argument('--epochs', type=int, default=300, help='number of epochs')
+parser.add_argument('--data_path', type=str, default='./dataset', help='learning rate')
+parser.add_argument('--data_name', type=str, default='cifar10', help='learning rate')
+parser.add_argument('--lr', type=float, default=0.01, help='learning rate')
+parser.add_argument('--epochs', type=int, default=200, help='number of epochs')
 parser.add_argument('--nums_class', type=int, default=12, help='number of epochs')
 parser.add_argument('-b', '--batch', type=int, default=128, help='number of epochs')
 args = parser.parse_args()
@@ -34,30 +37,32 @@ learning_rate = args.lr
 epochs = args.epochs
 
 # Dataset and DataLoader
-train_transform = torchvision.transforms.Compose([
-        ChangeAmplitude(),
-        ChangeSpeedAndPitchAudio(),
-        TimeshiftAudio(),
-        FixAudioLength(),
-        torchaudio.transforms.MelSpectrogram(sample_rate=16000,
-                                             n_fft=2048,
-                                             hop_length=512,
-                                             n_mels=128,
-                                             normalized=True),
-        torchaudio.transforms.AmplitudeToDB(),
-    ])
-valid_transform = torchvision.transforms.Compose([
-        FixAudioLength(),
-        torchaudio.transforms.MelSpectrogram(sample_rate=16000,
-                                             n_fft=2048,
-                                             hop_length=512,
-                                             n_mels=128,
-                                             normalized=True),
-        torchaudio.transforms.AmplitudeToDB(),
-    ])
+# train_transform = torchvision.transforms.Compose([
+#         ChangeAmplitude(),
+#         ChangeSpeedAndPitchAudio(),
+#         TimeshiftAudio(),
+#         FixAudioLength(),
+#         torchaudio.transforms.MelSpectrogram(sample_rate=16000,
+#                                              n_fft=2048,
+#                                              hop_length=512,
+#                                              n_mels=128,
+#                                              normalized=True),
+#         torchaudio.transforms.AmplitudeToDB(),
+#     ])
+# valid_transform = torchvision.transforms.Compose([
+#         FixAudioLength(),
+#         torchaudio.transforms.MelSpectrogram(sample_rate=16000,
+#                                              n_fft=2048,
+#                                              hop_length=512,
+#                                              n_mels=128,
+#                                              normalized=True),
+#         torchaudio.transforms.AmplitudeToDB(),
+#     ])
+#
+# train_data = SpeechCommandV1(root=args.data, subset='training', transform=train_transform, num_classes=args.nums_class)
+# test_data = SpeechCommandV1(root=args.data, subset='validation', transform=valid_transform, num_classes=args.nums_class)
 
-train_data = SpeechCommandV1(root=args.data, subset='training', transform=train_transform, num_classes=args.nums_class)
-test_data = SpeechCommandV1(root=args.data, subset='validation', transform=valid_transform, num_classes=args.nums_class)
+train_data, test_data = get_dataset(args.data_name, args.data_path)
 
 train_loader = DataLoader(dataset=train_data, batch_size=batch_size, shuffle=True, num_workers=8)
 test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False, num_workers=8)
@@ -65,7 +70,7 @@ test_loader = DataLoader(dataset=test_data, batch_size=batch_size, shuffle=False
 
 
 # Instantiate models, loss function, and optimizer
-model = Spike_MLP(4,128,32,args.nums_class).cuda()
+model = SEW.resnet18(args.nums_class).cuda()
 criterion = nn.CrossEntropyLoss().cuda()
 optimizer = optim.AdamW(model.parameters(), lr=learning_rate)
 

@@ -269,6 +269,43 @@ class TimeshiftAudio(object):
             data = data[:, :data.shape[1] - a] if a else data[:, b:]
         return data
 
+
+def get_dataset(name: str, data_path):
+    if name == 'cifar10':
+        data_path = os.path.join(data_path, 'cifar10')
+        train_data = torchvision.datasets.CIFAR10(root=data_path, train=True,
+            transform= torchvision.transforms.Compose([
+                torchvision.transforms.RandomCrop((32, 32), padding=4),
+                torchvision.transforms.RandomHorizontalFlip(),
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+            ]),download=True)
+        test_data = torchvision.datasets.CIFAR10(root=data_path, train=False,
+             transform= torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
+            ]),download=True)
+        return train_data, test_data
+
+    elif name == 'cifar100':
+        data_path = os.path.join(data_path, 'cifar100')
+        train_data = torchvision.datasets.CIFAR100(root=data_path, train=True,
+            transform= torchvision.transforms.Compose([
+                torchvision.transforms.RandomCrop((32, 32), padding=4),
+                torchvision.transforms.RandomHorizontalFlip(),
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
+            ]),download=True)
+        test_data = torchvision.datasets.CIFAR100(root=data_path, train=False,
+             transform= torchvision.transforms.Compose([
+                torchvision.transforms.ToTensor(),
+                torchvision.transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)),
+            ]),download=True)
+        return train_data, test_data
+
+
+
+
 if __name__ == '__main__':
 
     train_transform = torchvision.transforms.Compose([
