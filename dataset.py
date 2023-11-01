@@ -303,8 +303,31 @@ def get_dataset(name: str, data_path):
             ]),download=True)
         return train_data, test_data
 
-
-
+    elif name == 'speechcommand':
+        train_transform = torchvision.transforms.Compose([
+                ChangeAmplitude(),
+                ChangeSpeedAndPitchAudio(),
+                TimeshiftAudio(),
+                FixAudioLength(),
+                torchaudio.transforms.MelSpectrogram(sample_rate=16000,
+                                                     n_fft=2048,
+                                                     hop_length=512,
+                                                     n_mels=128,
+                                                     normalized=True),
+                torchaudio.transforms.AmplitudeToDB(),
+            ])
+        valid_transform = torchvision.transforms.Compose([
+                FixAudioLength(),
+                torchaudio.transforms.MelSpectrogram(sample_rate=16000,
+                                                     n_fft=2048,
+                                                     hop_length=512,
+                                                     n_mels=128,
+                                                     normalized=True),
+                torchaudio.transforms.AmplitudeToDB(),
+            ])
+        train_data = SpeechCommandV1(root=data_path, subset='training', transform=train_transform, num_classes=35)
+        test_data = SpeechCommandV1(root=data_path, subset='validation', transform=valid_transform, num_classes=35)
+        return train_data, test_data
 
 if __name__ == '__main__':
 
