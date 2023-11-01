@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="8aacb572-b803-4396-8cc9-1d3c045bdf94" name="3090">
+        <fileTransfer rootFolder="/remote-home/qhn" accessType="SFTP" host="183.195.182.126" port="21070" sshConfigId="973df858-776e-404a-b70f-6080fd53e815" sshConfig="root@183.195.182.126:21070 password">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" keepAliveTimeout="0" passiveMode="true" shareSSLContext="true" />
+          </advancedOptions>
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
